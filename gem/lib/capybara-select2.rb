@@ -37,6 +37,8 @@ module Capybara
         drop_container = ".select2-drop"
       end
 
+      sleep options[:sleep] if options.has_key? :sleep
+
       [value].flatten.each do |value|
         if find(:xpath, "//body").has_selector?("#{drop_container} li.select2-results__option")
           # select2 version 4.0
