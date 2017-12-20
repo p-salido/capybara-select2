@@ -16,6 +16,10 @@ module Capybara
         select2_container = find("label", text: select_name).find(:xpath, '..').find(".select2-container")
       end
 
+      # delay this a bit because it seems most times select2 is not
+      # actually ready right away
+      sleep 0.1
+
       # Open select2 field
       select2_container.find(".select2-choice, .select2-choices").click
 
@@ -28,7 +32,15 @@ module Capybara
       end
 
       [value].flatten.each do |value|
-        find(:xpath, "//body").find("#{drop_container} li.select2-result-selectable", text: value).click
+        begin
+          find(:xpath, "//body").find("#{drop_container} li.select2-result-selectable", text: value).click
+        rescue Capybara::ElementNotFound
+          # it seems that sometimes the "open select2 field" click
+          # would happen before select2 is initialized, hence
+          # the dropdown wouldn't actually be opened; retry both operations
+          select2_container.find(".select2-choice, .select2-choices").click
+          find(:xpath, "//body").find("#{drop_container} li.select2-result-selectable", text: value).click
+        end
       end
     end
   end
