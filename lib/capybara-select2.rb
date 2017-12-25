@@ -22,7 +22,7 @@ module Capybara
 
       # Open select2 field
       container = select2_container.find(".select2-choice, .select2-choices")
-      if Capybara.current_driver == 'poltergeist'
+      if Capybara.current_driver == :poltergeist
         container.trigger('click')
       else
         container.click
@@ -44,7 +44,7 @@ module Capybara
           # would happen before select2 is initialized, hence
           # the dropdown wouldn't actually be opened; retry both operations
           container = select2_container.find(".select2-choice, .select2-choices")
-          if Capybara.current_driver == 'poltergeist'
+          if Capybara.current_driver == :poltergeist
             container.trigger('click')
           else
             container.click
