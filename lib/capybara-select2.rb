@@ -36,6 +36,8 @@ module Capybara
         drop_container = ".select2-drop"
       end
 
+      sleep options[:sleep] if options.has_key? :sleep
+
       [value].flatten.each do |value|
         begin
           find(:xpath, "//body").find("#{drop_container} li.select2-result-selectable", text: value).click
