@@ -21,36 +21,32 @@ module Capybara
       sleep 0.1
 
       # Open select2 field
-      container = select2_container.find(".select2-choice, .select2-choices")
-      if Capybara.current_driver == :poltergeist
-        container.trigger('click')
-      else
-        container.click
-      end
+        select2_container.find(".select2-selection").click
 
       if options.has_key? :search
         find(:xpath, "//body").find(".select2-search input.select2-search__field").set(value)
         page.execute_script(%|$("input.select2-search__field:visible").keyup();|)
         drop_container = ".select2-results"
       else
-        drop_container = ".select2-drop"
+        # select2 version 4.0
+        drop_container = ".select2-dropdown"
       end
 
       [value].flatten.each do |value|
-        begin
-          find(:xpath, "//body").find("#{drop_container} li.select2-result-selectable", text: value).click
-        rescue Capybara::ElementNotFound
-          # it seems that sometimes the "open select2 field" click
-          # would happen before select2 is initialized, hence
-          # the dropdown wouldn't actually be opened; retry both operations
-          container = select2_container.find(".select2-choice, .select2-choices")
-          if Capybara.current_driver == :poltergeist
-            container.trigger('click')
-          else
-            container.click
+          # select2 version 4.0
+          container = find(:xpath, "//body").find(drop_container)
+          options = container.find_all("li.select2-results__option")
+          found = false
+          options.each do |option|
+            if option.text.strip == value
+              option.click
+              found = true
+              break
+            end
           end
-          find(:xpath, "//body").find("#{drop_container} li.select2-result-selectable", text: value).click
-        end
+          unless found
+            raise "Did not find an option with text #{text}"
+          end
       end
     end
   end
