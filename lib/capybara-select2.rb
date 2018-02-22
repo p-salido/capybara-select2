@@ -36,7 +36,7 @@ module Capybara
         retried = false
         begin
           # select2 version 4.0
-          container = find(:xpath, "//body").find(drop_container)
+          container = find("body #{drop_container}")
           options = container.find_all("li.select2-results__option")
           found = false
           options.each do |option|
@@ -53,6 +53,11 @@ module Capybara
           # it seems that sometimes the "open select2 field" click
           # would happen before select2 is initialized, hence
           # the dropdown wouldn't actually be opened; retry both operations
+
+          # And this seems to also fail, try sleeping
+          puts 'Retrying'
+          sleep 0.5
+
           if retried
             raise
           else
