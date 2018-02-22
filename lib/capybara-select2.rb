@@ -37,6 +37,12 @@ module Capybara
         begin
           # select2 version 4.0
           container = find("body #{drop_container}")
+        rescue Capybara::ElementNotFound
+          # this happens when the first click did not open select2
+          select2_container.find(".select2-selection").click
+          container = find("body #{drop_container}")
+        end
+
           options = container.find_all("li.select2-results__option")
           found = false
           options.each do |option|
@@ -49,22 +55,6 @@ module Capybara
           unless found
             raise "Did not find an option with text #{text}"
           end
-        rescue Capybara::ElementNotFound
-          # it seems that sometimes the "open select2 field" click
-          # would happen before select2 is initialized, hence
-          # the dropdown wouldn't actually be opened; retry both operations
-
-          # And this seems to also fail, try sleeping
-          puts 'Retrying'
-          sleep 0.5
-
-          if retried
-            raise
-          else
-            retried = true
-            retry
-          end
-        end
       end
     end
   end
