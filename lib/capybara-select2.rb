@@ -33,6 +33,8 @@ module Capybara
       end
 
       [value].flatten.each do |value|
+        retried = false
+        begin
           # select2 version 4.0
           container = find(:xpath, "//body").find(drop_container)
           options = container.find_all("li.select2-results__option")
@@ -47,6 +49,17 @@ module Capybara
           unless found
             raise "Did not find an option with text #{text}"
           end
+        rescue Capybara::ElementNotFound
+          # it seems that sometimes the "open select2 field" click
+          # would happen before select2 is initialized, hence
+          # the dropdown wouldn't actually be opened; retry both operations
+          if retried
+            raise
+          else
+            retried = true
+            retry
+          end
+        end
       end
     end
   end
